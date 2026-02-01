@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drawing Board</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0; 
+            font-family: Arial, sans-serif;
+        }
+
+        
+        .drawing-container {
+            position: relative; 
+            width: 800px;
+            height: 500px;
+            background-color: white;
+            border: 2px solid black; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        
+        canvas {
+            display: block;
+            cursor: crosshair; 
+        }
+
+        
+        .clear-btn {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            background-color: #e0e0e0;
+            border: 2px solid #999;
+            border-radius: 4px;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .clear-btn:hover {
+            background-color: #d0d0d0;
+        }
+
+        .clear-btn:active {
+            background-color: #bfbfbf;
+            transform: translateY(1px);
+        }
+
+        
+        .clear-btn svg {
+            width: 30px;
+            height: 30px;
+            fill: #555;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="drawing-container">
+        <canvas id="drawingBoard"></canvas>
+        
+        <button class="clear-btn" id="clearBtn" title="Clear Board">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 6h18v2H3V6zm2 3h14v13H5V9zm3-5h6v2H8V4z"/> 
+                </svg>
+        </button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('drawingBoard');
+        const ctx = canvas.getContext('2d');
+        const container = document.querySelector('.drawing-container');
+        const clearBtn = document.getElementById('clearBtn');
+
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+
+        
+        function resizeCanvas() {
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            
+            
+            ctx.strokeStyle = '#000000'; 
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+            ctx.lineWidth = 4; 
+        }
+
+        
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        
+        function draw(e) {
+            if (!isDrawing) return; 
+            
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY); 
+            ctx.lineTo(x, y); 
+            ctx.stroke();
+            
+            
+            [lastX, lastY] = [x, y];
+        }
+
+        
+        canvas.addEventListener('mousedown', (e) => {
+            isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            [lastX, lastY] = [e.clientX - rect.left, e.clientY - rect.top];
+        });
+
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', () => isDrawing = false);
+        canvas.addEventListener('mouseout', () => isDrawing = false);
+
+       
+        clearBtn.addEventListener('click', () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        });
+
+    </script>
+</body>
+</html>
